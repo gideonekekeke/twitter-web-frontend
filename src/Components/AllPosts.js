@@ -4,11 +4,12 @@ import { FaRegComment, FaRetweet } from "react-icons/fa";
 import { FcLike } from "react-icons/fc";
 import styled from "styled-components";
 import { FiShare } from "react-icons/fi";
+import { Link } from "react-router-dom";
 const AllPosts = () => {
 	return (
 		<Container>
 			<Card>
-				<Holder>
+				<Holder to='/details'>
 					<UserImage />
 					<TextHold>
 						<UserName>Name</UserName>
@@ -76,10 +77,13 @@ const TextHold = styled.div`
 	margin-left: 10px;
 `;
 
-const Holder = styled.div`
+const Holder = styled(Link)`
 	display: flex;
 
 	margin: 20px;
+	cursor: pointer;
+	text-decoration: none;
+	color: white;
 `;
 const UserImage = styled.div`
 	height: 45px;

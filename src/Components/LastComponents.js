@@ -96,7 +96,8 @@ const SearchHold = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
+	position: sticky;
+	top: 0;
 	input {
 		height: 40px;
 		width: 300px;

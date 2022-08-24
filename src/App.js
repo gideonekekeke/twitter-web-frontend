@@ -7,17 +7,23 @@ import ExplorePage from "./Components/ExplorePage";
 import NotificationPage from "./Components/NotificationPage";
 import Messages from "./Components/Messages";
 import BookMarks from "./Components/BookMarks";
+import ProfilePage from "./Components/ProfilePage";
+import RegisterationPage from "./Components/RegisterationPage";
+import PostDetails from "./Components/PostDetails";
 function App() {
 	return (
 		<Container>
 			<Router>
 				<SideBarComp />
 				<Routes>
+					<Route path='/register' element={<RegisterationPage />} />
 					<Route path='/' element={<ComponentHold />} />
 					<Route path='/explore' element={<ExplorePage />} />
 					<Route path='/notifications' element={<NotificationPage />} />
 					<Route path='/messages' element={<Messages />} />
-					<Route path='/bookmarks' element={<BookMarks />} />
+					<Route path='/bookmark' element={<BookMarks />} />
+					<Route path='/profile' element={<ProfilePage />} />
+					<Route path='/details' element={<PostDetails />} />
 				</Routes>
 				<LastComponents />
 			</Router>

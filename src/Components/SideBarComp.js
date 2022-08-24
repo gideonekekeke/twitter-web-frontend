@@ -9,7 +9,19 @@ import { BsBookmark } from "react-icons/bs";
 import { BsTwitter } from "react-icons/bs";
 import { FaRegListAlt, FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import TweetModal from "./TweetModal";
+import RegisterationPage from "./RegisterationPage";
 const SideBarComp = () => {
+	const [show, setShow] = React.useState(false);
+	const [show2, setShow2] = React.useState(false);
+
+	const toggleShow = () => {
+		setShow(!show);
+	};
+	const toggleShow2 = () => {
+		setShow2(!show2);
+	};
+
 	return (
 		<Container>
 			<Logo>
@@ -60,16 +72,41 @@ const SideBarComp = () => {
 					</Icony>
 					<Text>Profile</Text>
 				</MainHold>
-				<MainHold to='/tweet'>
+				<MainHold onClick={toggleShow} to='/'>
 					<Button>Tweet</Button>
 				</MainHold>
+				<br />
+				<br />
+
+				<MainHold onClick={toggleShow2} to='/'>
+					<Button2>Create Account</Button2>
+				</MainHold>
 			</Hold>
+
+			{show ? <TweetModal toggleShow={toggleShow} /> : null}
+			{show2 ? <RegisterationPage toggleShow2={toggleShow2} /> : null}
 		</Container>
 	);
 };
 
 export default SideBarComp;
 
+const Button2 = styled.div`
+	margin: 10px;
+	width: 150px;
+	background-color: #1a8cd8;
+	color: white;
+	padding: 20px 30px;
+	border-radius: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 15px;
+
+	@media screen and (max-width: 768px) {
+		display: none;
+	}
+`;
 const Button = styled.div`
 	margin: 10px;
 	width: 120px;
@@ -86,6 +123,10 @@ const Button = styled.div`
 	}
 `;
 const Hold = styled.div`
+	position: fixed;
+
+	height: 100vh;
+	margin-top: 100px;
 	/* background-color: red; */
 `;
 const MainHold = styled(Link)`
@@ -123,7 +164,9 @@ const Container = styled.div`
 	display: flex;
 
 	flex-direction: column;
-
+	position: sticky;
+	top: 0;
+	height: 100vh;
 	@media screen and (max-width: 768px) {
 		width: 100px;
 	}
