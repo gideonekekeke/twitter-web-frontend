@@ -7,12 +7,48 @@ import { FaRegComment, FaRetweet } from "react-icons/fa";
 import { FcLike } from "react-icons/fc";
 import { FiShare } from "react-icons/fi";
 import EditProfilePage from "./EditProfilePage";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import FollowingList from "./FollowingList";
+import FollowersList from "./FollowersList";
 const ProfilePage = () => {
 	const [tweets, setTweets] = React.useState(false);
 	const [replies, setReplies] = React.useState(false);
 	const [media, setMedia] = React.useState(false);
 	const [like, setLike] = React.useState(false);
 	const [prof, setProf] = React.useState(false);
+
+	const [following, setFollowing] = React.useState(false);
+	const [followers, setFollowers] = React.useState(false);
+
+	const { id } = useParams();
+
+	const [data, setData] = React.useState([]);
+
+	const toggleFollowing = () => {
+		setFollowing(!following);
+	};
+	const toggleFollowers = () => {
+		setFollowers(!followers);
+	};
+	// const dispatch = useDispatch();
+
+	const user = useSelector((state) => state?.persistedReducer?.current);
+
+	// const toggleShow = () => {
+	// 	setShow(!show);
+	// };
+	// const toggleShow2 = () => {
+	// 	setShow2(!show2);
+	// };
+
+	const getUser = async () => {
+		await axios.get(`http://localhost:18000/api/user/${id}`).then((res) => {
+			console.log(res);
+			setData(res.data.data);
+		});
+	};
 
 	const toggleTweet = () => {
 		setTweets(true);
@@ -43,40 +79,54 @@ const ProfilePage = () => {
 		setProf(!prof);
 	};
 
+	React.useEffect(() => {
+		getUser();
+	}, [id]);
 	return (
 		<>
 			{prof ? <EditProfilePage toggleProf={toggleProf} /> : null}
+			{following ? <FollowingList toggleFollowing={toggleFollowing} /> : null}
+			{followers ? <FollowersList toggleFollowers={toggleFollowers} /> : null}
 			<Container>
 				<Head>
 					<span>
 						<BiArrowBack />
 					</span>
 					<NameHold>
-						<Name>Gideon ekeke</Name>
-						<TweetHold>27 tweets</TweetHold>
+						<Name>
+							{data.name?.charAt(0)?.toUpperCase() + data.name?.slice(1)}
+						</Name>
+						<TweetHold>{data?.your_tweet?.length} tweets</TweetHold>
 					</NameHold>
 				</Head>
-				<CoverImage src={pic} />
+				<CoverImage src={data?.coverImage} />
 				<ProfileImageHold>
-					<ProfileImage src={pic1} />
-
-					<ButHold onClick={toggleProf}>
-						<Button>Edit Profile</Button>
-					</ButHold>
+					<ProfileImage src={data?.profileImage} />
+					{user?._id === data._id ? (
+						<ButHold onClick={toggleProf}>
+							<Button>Edit Profile</Button>
+						</ButHold>
+					) : (
+						<ButHold>
+							<Button>Message</Button>
+						</ButHold>
+					)}
 				</ProfileImageHold>
 
 				<ProfileNameHold>
-					<Name>Gideon ekeke</Name>
+					<Name>
+						{data.name?.charAt(0)?.toUpperCase() + data.name?.slice(1)}
+					</Name>
 
-					<TweetHold>@GiddyCode</TweetHold>
-					<Bio>Life is Simple, Be simple and Bold</Bio>
+					<TweetHold>@{data.username}</TweetHold>
+					<Bio>{data?.bio}</Bio>
 
 					<FollowerHold>
-						<Following>
-							<span>0</span> Following
+						<Following onClick={toggleFollowing}>
+							<span>{data?.following?.length}</span> Following
 						</Following>
-						<Followers>
-							<span>0</span> Followers
+						<Followers onClick={toggleFollowers}>
+							<span>{data?.follower?.length}</span> Followers
 						</Followers>
 					</FollowerHold>
 				</ProfileNameHold>
@@ -396,10 +446,12 @@ const FollowerHold = styled.div`
 `;
 const Following = styled.div`
 	color: grey;
+	cursor: pointer;
 `;
 const Followers = styled.div`
 	margin-left: 20px;
 	color: grey;
+	cursor: pointer;
 `;
 
 const ProfileNameHold = styled.div`

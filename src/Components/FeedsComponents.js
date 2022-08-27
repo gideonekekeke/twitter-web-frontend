@@ -4,7 +4,26 @@ import { MdInsertPhoto } from "react-icons/md";
 import { RiFileGifFill } from "react-icons/ri";
 import styled from "styled-components";
 import AllPosts from "./AllPosts";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import Swal from "sweetalert2";
 const FeedsComponents = () => {
+	const [data, setData] = React.useState([]);
+
+	const user = useSelector((state) => state?.persistedReducer?.current);
+
+	const getUser = async () => {
+		await axios
+			.get(`http://localhost:18000/api/user/${user._id}`)
+			.then((res) => {
+				console.log(res);
+				setData(res.data.data);
+			});
+	};
+
+	React.useEffect(() => {
+		getUser();
+	}, []);
 	return (
 		<Container>
 			<FirstComp>
@@ -15,7 +34,7 @@ const FeedsComponents = () => {
 			</FirstComp>
 
 			<SecondComp>
-				<UserImage />
+				{user ? <UserImage src={data?.profileImage} /> : <UserImage />}
 				<InputHolder>
 					<input placeholder="What's happening?" />
 					<Hold>
@@ -31,7 +50,19 @@ const FeedsComponents = () => {
 								<RiFileGifFill />
 							</span>
 						</Maining>
-						<Button>Tweet</Button>
+						{user ? (
+							<Button>Tweet</Button>
+						) : (
+							<Button
+								onClick={() => {
+									Swal.fire({
+										icon: "error",
+										title: "Cannot tweet, Please create an Account",
+									});
+								}}>
+								Tweet
+							</Button>
+						)}
 					</Hold>
 				</InputHolder>
 			</SecondComp>
@@ -74,12 +105,13 @@ const Hold = styled.div`
 
 	width: 100%;
 `;
-const UserImage = styled.div`
+const UserImage = styled.img`
 	height: 50px;
 	width: 50px;
 	border-radius: 50%;
 	background-color: silver;
 	margin-left: 20px;
+	object-fit: cover;
 `;
 const InputHolder = styled.div`
 	display: flex;

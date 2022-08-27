@@ -1,12 +1,94 @@
 import React from "react";
 import { ImCancelCircle } from "react-icons/im";
 import styled from "styled-components";
-
+import axios from "axios";
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import MoonLoader from "react-spinners/MoonLoader";
+import { useDispatch } from "react-redux";
+import { yupResolver } from "@hookform/resolvers/yup";
+import Swal from "sweetalert2";
+import { user } from "./Global/actions";
 const RegisterationPage = ({ toggleShow2 }) => {
 	const [toggle, setToggle] = React.useState(false);
+	const dispatch = useDispatch();
+
+	const [email, setEmail] = React.useState("");
+	const [password, setPassword] = React.useState("");
+	const [load, setLoad] = React.useState(false);
 
 	const toggleEffect = () => {
 		setToggle(!toggle);
+	};
+
+	const ToggleLoad = () => {
+		setLoad(true);
+	};
+
+	const schema = yup.object().shape({
+		name: yup.string().required("this field is required"),
+		username: yup.string().required("this field is required"),
+		email: yup.string().required("this field is required"),
+		password: yup.string().required("this field is required"),
+	});
+
+	const {
+		handleSubmit,
+		reset,
+		formState: { errors, isSubmitting },
+		register,
+	} = useForm({
+		resolver: yupResolver(schema),
+	});
+
+	const RegisterUser = handleSubmit(async (val) => {
+		console.log(val);
+
+		await axios
+			.post("http://localhost:18000/api/user/register", val)
+			.then((res) => {
+				console.log(res.data.data);
+				dispatch(user(res.data.data));
+				reset();
+				Swal.fire({
+					icon: "success",
+					title: "Account created Successfully",
+					showConfirmButton: false,
+				});
+				window.location.reload();
+			})
+			.catch((err) => {
+				console.log("errror ooooooo");
+				Swal.fire({
+					icon: "error",
+					title: "An error occurred",
+				});
+			});
+	});
+	const LoginUser = async () => {
+		ToggleLoad();
+		await axios
+			.post("http://localhost:18000/api/user/login", { email, password })
+			.then((res) => {
+				console.log(res.data.data);
+				Swal.fire({
+					icon: "success",
+					title: "Welcome Back",
+					showConfirmButton: false,
+				});
+				window.location.reload();
+
+				dispatch(user(res.data.data));
+
+				setLoad(false);
+				reset();
+			})
+			.catch((err) => {
+				Swal.fire({
+					icon: "error",
+					title: "An error occurred",
+				});
+			});
 	};
 
 	return (
@@ -23,7 +105,11 @@ const RegisterationPage = ({ toggleShow2 }) => {
 				transition: "all 350ms",
 			}}>
 			{toggle ? (
-				<Card>
+				<Card
+					onSubmit={(e) => {
+						e.preventDefault();
+						LoginUser();
+					}}>
 					<span style={{ fontSize: "20px", cursor: "pointer" }}>
 						<ImCancelCircle onClick={toggleShow2} />
 					</span>
@@ -37,6 +123,9 @@ const RegisterationPage = ({ toggleShow2 }) => {
 						<TextHold>
 							<span>Email</span>
 							<input
+								onChange={(e) => {
+									setEmail(e.target.value);
+								}}
 								style={{ width: "470px" }}
 								placeholder='Enter your Email'
 							/>
@@ -46,13 +135,19 @@ const RegisterationPage = ({ toggleShow2 }) => {
 						<TextHold>
 							<span>Password</span>
 							<input
+								onChange={(e) => {
+									setPassword(e.target.value);
+								}}
 								style={{ width: "470px" }}
 								placeholder='Enter your Password'
 							/>
 						</TextHold>
 					</InputHold>
-
-					<Button>Log In</Button>
+					{load ? (
+						<MoonLoader size={20} color='#fff' />
+					) : (
+						<Button type='submit'>Log In</Button>
+					)}
 					<p>
 						Don't Have an account?{" "}
 						<span
@@ -64,7 +159,11 @@ const RegisterationPage = ({ toggleShow2 }) => {
 					</p>
 				</Card>
 			) : (
-				<Card>
+				<Card
+					onSubmit={(e) => {
+						e.preventDefault();
+						RegisterUser();
+					}}>
 					<span style={{ fontSize: "20px", cursor: "pointer" }}>
 						<ImCancelCircle onClick={toggleShow2} />
 					</span>
@@ -77,17 +176,21 @@ const RegisterationPage = ({ toggleShow2 }) => {
 					<InputHold>
 						<TextHold>
 							<span>FullName</span>
-							<input placeholder='Enter your full name' />
+							<input {...register("name")} placeholder='Enter your full name' />
 						</TextHold>
 						<TextHold>
 							<span>UserName</span>
-							<input placeholder='Enter your username' />
+							<input
+								{...register("username")}
+								placeholder='Enter your username'
+							/>
 						</TextHold>
 					</InputHold>
 					<InputHold>
 						<TextHold>
 							<span>Email</span>
 							<input
+								{...register("email")}
 								style={{ width: "470px" }}
 								placeholder='Enter your Email'
 							/>
@@ -97,13 +200,17 @@ const RegisterationPage = ({ toggleShow2 }) => {
 						<TextHold>
 							<span>Password</span>
 							<input
+								{...register("password")}
 								style={{ width: "470px" }}
 								placeholder='Enter your Password'
 							/>
 						</TextHold>
 					</InputHold>
-
-					<Button>Register</Button>
+					{isSubmitting ? (
+						<MoonLoader size={20} color='#fff' />
+					) : (
+						<Button type='submit'>Register</Button>
+					)}
 					<p>
 						Already Have an account?{" "}
 						<span
@@ -121,17 +228,22 @@ const RegisterationPage = ({ toggleShow2 }) => {
 
 export default RegisterationPage;
 
-const Button = styled.div`
+const Button = styled.button`
 	margin: 10px;
-	width: 100px;
+	width: 150px;
 	background-color: #1a8cd8;
 	color: white;
-	padding: 10px 10px;
+	padding: 20px 30px;
 	border-radius: 20px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
+
+	transition: all 350ms;
+	:hover {
+		transform: scale(0.96);
+	}
 
 	@media screen and (max-width: 768px) {
 		display: none;
@@ -160,7 +272,7 @@ const TextHold = styled.div`
 	padding-bottom: 20px;
 `;
 
-const Card = styled.div`
+const Card = styled.form`
 	/* height: 200px; */
 	width: 500px;
 	background-color: black;

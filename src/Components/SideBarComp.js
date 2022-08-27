@@ -11,9 +11,16 @@ import { FaRegListAlt, FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import TweetModal from "./TweetModal";
 import RegisterationPage from "./RegisterationPage";
+import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import { signOut } from "./Global/actions";
 const SideBarComp = () => {
 	const [show, setShow] = React.useState(false);
 	const [show2, setShow2] = React.useState(false);
+	const [data, setData] = React.useState([]);
+	const dispatch = useDispatch();
+
+	const user = useSelector((state) => state?.persistedReducer?.current);
 
 	const toggleShow = () => {
 		setShow(!show);
@@ -21,6 +28,19 @@ const SideBarComp = () => {
 	const toggleShow2 = () => {
 		setShow2(!show2);
 	};
+
+	const getUser = async () => {
+		await axios
+			.get(`http://localhost:18000/api/user/${user._id}`)
+			.then((res) => {
+				console.log(res);
+				setData(res.data.data);
+			});
+	};
+
+	React.useEffect(() => {
+		getUser();
+	}, []);
 
 	return (
 		<Container>
@@ -42,45 +62,96 @@ const SideBarComp = () => {
 					</Icony>
 					<Text>Explore</Text>
 				</MainHold>
-				<MainHold to='/notifications'>
-					<Icony>
-						<BiBell />
-					</Icony>
-					<Text>Notifications</Text>
-				</MainHold>
-				<MainHold to='/messages'>
-					<Icony>
-						<MdOutlineMailOutline />
-					</Icony>
-					<Text>Messages</Text>
-				</MainHold>
-				<MainHold to='/bookmark'>
-					<Icony>
-						<BsBookmark />
-					</Icony>
-					<Text>Bookmark</Text>
-				</MainHold>
-				<MainHold to='/list'>
-					<Icony>
-						<FaRegListAlt />
-					</Icony>
-					<Text>Lists</Text>
-				</MainHold>
-				<MainHold to='/profile'>
-					<Icony>
-						<FaUser />
-					</Icony>
-					<Text>Profile</Text>
-				</MainHold>
-				<MainHold onClick={toggleShow} to='/'>
-					<Button>Tweet</Button>
-				</MainHold>
+				{user ? (
+					<>
+						<MainHold to='/notifications'>
+							<Icony>
+								<BiBell />
+							</Icony>
+							<Text>Notifications</Text>
+						</MainHold>
+						<MainHold to='/messages'>
+							<Icony>
+								<MdOutlineMailOutline />
+							</Icony>
+							<Text>Messages</Text>
+						</MainHold>
+						<MainHold to='/bookmark'>
+							<Icony>
+								<BsBookmark />
+							</Icony>
+							<Text>Bookmark</Text>
+						</MainHold>
+						<MainHold to='/list'>
+							<Icony>
+								<FaRegListAlt />
+							</Icony>
+							<Text>Lists</Text>
+						</MainHold>
+						<MainHold to={`/profile/${user._id}`}>
+							<Icony>
+								<FaUser />
+							</Icony>
+							<Text>Profile</Text>
+						</MainHold>
+					</>
+				) : null}
+				{user ? (
+					<MainHold onClick={toggleShow} to='/'>
+						<Button>Tweet</Button>
+					</MainHold>
+				) : null}
 				<br />
 				<br />
 
-				<MainHold onClick={toggleShow2} to='/'>
-					<Button2>Create Account</Button2>
-				</MainHold>
+				{user ? (
+					<MainHold
+						onClick={() => {
+							dispatch(signOut(user));
+							window.location.reload();
+						}}
+						to='/'>
+						<div
+							onClick={() => {
+								dispatch(signOut(user));
+								window.location.reload();
+							}}
+							style={{ display: "flex", alignItems: "center" }}>
+							<img
+								src={data?.profileImage}
+								alt='profile'
+								style={{
+									height: "50px",
+									width: "50px",
+									objectFit: "cover",
+									backgroundColor: "silver",
+									borderRadius: "50%",
+								}}
+							/>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+									marginLeft: "10px",
+								}}>
+								{" "}
+								<span style={{ fontSize: "17px" }}>{data?.name}</span>
+								<span
+									style={{
+										fontSize: "13px",
+
+										color: "grey",
+									}}>
+									@{data?.username}
+								</span>
+							</div>
+						</div>
+					</MainHold>
+				) : (
+					<MainHold onClick={toggleShow2} to='/'>
+						<Button2>Create Account</Button2>
+					</MainHold>
+				)}
 			</Hold>
 
 			{show ? <TweetModal toggleShow={toggleShow} /> : null}

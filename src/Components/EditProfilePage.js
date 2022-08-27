@@ -1,10 +1,192 @@
 import React from "react";
 import { ImCancelCircle } from "react-icons/im";
 import styled from "styled-components";
-
+import { useSelector } from "react-redux";
 import { TbCameraPlus } from "react-icons/tb";
+import { AiFillSave } from "react-icons/ai";
+import axios from "axios";
+import LoadingState from "./LoadingState";
+import Swal from "sweetalert2";
 
 const EditProfilePage = ({ toggleProf }) => {
+	const user = useSelector((state) => state?.persistedReducer?.current);
+	const [file1, setFile1] = React.useState("");
+	const [file2, setFile2] = React.useState("");
+	const [profileImage, setProfileImage] = React.useState("");
+	const [coverImage, setCoverImage] = React.useState("");
+	const [name, setName] = React.useState();
+	const [bio, setBio] = React.useState();
+
+	const [data, setData] = React.useState([]);
+	const [load, setLoad] = React.useState(false);
+
+	const getUser = async () => {
+		await axios
+			.get(`http://localhost:18000/api/user/${user._id}`)
+			.then((res) => {
+				console.log(res);
+				setData(res.data.data);
+			});
+	};
+
+	const toggleLoad = () => {
+		setLoad(true);
+	};
+
+	const onChange = (e) => {
+		const file = e.target.files[0];
+		const fileRef = URL.createObjectURL(file);
+		setFile1(fileRef);
+
+		setProfileImage(file);
+	};
+	const onChangeCover = (e) => {
+		const file = e.target.files[0];
+		const fileRef = URL.createObjectURL(file);
+		setFile2(fileRef);
+
+		setCoverImage(file);
+	};
+
+	const onLoad = (fileString) => {
+		setProfileImage(fileString);
+	};
+	const onLoader = (fileString) => {
+		setProfileImage(fileString);
+	};
+
+	// const EditProfilePage = async () => {
+	// 	toggleLoad();
+	// 	await axios
+	// 		.patch(`http://localhost:18000/api/user/editedProfileImage/${user._id}`, {
+	// 			profileImage,
+	// 		})
+	// 		.then((res) => {
+	// 			setLoad(false);
+	// 			console.log(res);
+	// 		});
+	// };
+
+	const EditProfilePage = async () => {
+		toggleLoad();
+		const formData = new FormData();
+
+		formData.append("profileImage", profileImage);
+
+		const config = {
+			"content-type": "multipart/form-data",
+		};
+
+		await axios
+			.patch(
+				`http://localhost:18000/api/user/editedProfileImage/${user._id}`,
+				formData,
+				config,
+			)
+			.then((res) => {
+				console.log(res.data.data);
+
+				Swal.fire({
+					position: "center",
+					icon: "success",
+					title: "Uploaded successfully",
+					showConfirmButton: false,
+					timer: 2500,
+				});
+				setLoad(false);
+				window.location.reload();
+			})
+			.catch((error) => {
+				new Swal({
+					title: error.response.data.message,
+					text: `Please check and fix this ERROR`,
+					icon: "error",
+					showConfirmButton: false,
+					timer: 3500,
+				}).then(() => {});
+
+				setLoad(false);
+			});
+	};
+	const EditCoverPage = async () => {
+		toggleLoad();
+		const formData = new FormData();
+
+		formData.append("coverImage", coverImage);
+
+		const config = {
+			"content-type": "multipart/form-data",
+		};
+
+		await axios
+			.patch(
+				`http://localhost:18000/api/user/editedCoverImage/${user._id}`,
+				formData,
+				config,
+			)
+			.then((res) => {
+				console.log(res.data.data);
+
+				Swal.fire({
+					position: "center",
+					icon: "success",
+					title: "Uploaded successfully",
+					showConfirmButton: false,
+					timer: 2500,
+				});
+				setLoad(false);
+				window.location.reload();
+			})
+			.catch((error) => {
+				new Swal({
+					title: error.response.data.message,
+					text: `Please check and fix this ERROR`,
+					icon: "error",
+					showConfirmButton: false,
+					timer: 3500,
+				}).then(() => {});
+
+				setLoad(false);
+			});
+	};
+	const EditMainPage = async () => {
+		toggleLoad();
+
+		await axios
+			.patch(`http://localhost:18000/api/user/editedProfile/${user._id}`, {
+				name,
+				bio,
+			})
+			.then((res) => {
+				console.log(res.data.data);
+
+				Swal.fire({
+					position: "center",
+					icon: "success",
+					title: "Uploaded successfully",
+					showConfirmButton: false,
+					timer: 2500,
+				});
+				setLoad(false);
+				window.location.reload();
+			})
+			.catch((error) => {
+				new Swal({
+					title: error.response.data.message,
+					text: `Please check and fix this ERROR`,
+					icon: "error",
+					showConfirmButton: false,
+					timer: 3500,
+				}).then(() => {});
+
+				setLoad(false);
+			});
+	};
+
+	React.useEffect(() => {
+		getUser();
+	}, []);
+
 	return (
 		<div
 			style={{
@@ -26,20 +208,52 @@ const EditProfilePage = ({ toggleProf }) => {
 						</span>
 						<h4> Edit Profile</h4>
 					</div>
-					<Button>Save</Button>
+					<Button
+						onClick={() => {
+							if (file1) {
+								EditProfilePage();
+							} else if (file2) {
+								EditCoverPage();
+							} else {
+								EditMainPage();
+							}
+						}}>
+						Save
+					</Button>
 				</Head>
 				<CoverImageHold>
-					<CoverImage />
+					{file2 ? (
+						<CoverImage src={file2} />
+					) : (
+						<CoverImage src={data?.coverImage} />
+					)}
 					<UploadButton htmlFor='pix'>
-						<input id='pix' style={{ display: "none" }} type='file' />
+						<input
+							defaultValue={data?.coverImage}
+							onChange={onChangeCover}
+							id='pix'
+							style={{ display: "none" }}
+							type='file'
+						/>
 						<TbCameraPlus />
 					</UploadButton>
 				</CoverImageHold>
 
 				<ProfileImageHold>
-					<ProfileImage />
+					{file1 ? (
+						<ProfileImage src={file1} />
+					) : (
+						<ProfileImage src={data?.profileImage} />
+					)}
 					<UploadButton2 htmlFor='pixe'>
-						<input id='pixe' style={{ display: "none" }} type='file' />
+						<input
+							defaultValue={data?.coverImage}
+							onChange={onChange}
+							id='pixe'
+							style={{ display: "none" }}
+							type='file'
+						/>
+
 						<TbCameraPlus />
 					</UploadButton2>
 				</ProfileImageHold>
@@ -49,16 +263,32 @@ const EditProfilePage = ({ toggleProf }) => {
 				<InputHold>
 					<TextHold>
 						<span>Name</span>
-						<input style={{ width: "470px" }} placeholder='name' />
+						<input
+							defaultValue={data?.name}
+							onChange={(e) => {
+								setName(e.target.value);
+							}}
+							style={{ width: "470px" }}
+							placeholder='name'
+						/>
 					</TextHold>
 				</InputHold>
 				<InputHold>
 					<TextHold>
 						<span>Bio</span>
-						<input style={{ width: "470px" }} placeholder='Bio' />
+						<input
+							defaultValue={data?.bio}
+							onChange={(e) => {
+								setBio(e.target.value);
+							}}
+							style={{ width: "470px" }}
+							placeholder='Bio'
+						/>
 					</TextHold>
 				</InputHold>
 			</Card>
+
+			{load ? <LoadingState /> : null}
 		</div>
 	);
 };
@@ -71,7 +301,7 @@ const ProfileImageHold = styled.div`
 	align-items: center;
 `;
 
-const ProfileImage = styled.div`
+const ProfileImage = styled.img`
 	height: 100px;
 	width: 100px;
 	border-radius: 50%;
@@ -79,6 +309,7 @@ const ProfileImage = styled.div`
 	border: 6px solid black;
 	position: absolute;
 	margin-left: -400px;
+	object-fit: cover;
 `;
 const UploadButton2 = styled.label`
 	position: absolute;
@@ -107,10 +338,11 @@ const UploadButton = styled.label`
 	align-items: center;
 	cursor: pointer;
 `;
-const CoverImage = styled.div`
+const CoverImage = styled.img`
 	height: 170px;
 	width: 100%;
 	background-color: silver;
+	object-fit: cover;
 `;
 const CoverImageHold = styled.div`
 	display: flex;

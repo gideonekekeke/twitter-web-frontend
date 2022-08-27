@@ -22,7 +22,7 @@ function App() {
 					<Route path='/notifications' element={<NotificationPage />} />
 					<Route path='/messages' element={<Messages />} />
 					<Route path='/bookmark' element={<BookMarks />} />
-					<Route path='/profile' element={<ProfilePage />} />
+					<Route path='/profile/:id' element={<ProfilePage />} />
 					<Route path='/details' element={<PostDetails />} />
 				</Routes>
 				<LastComponents />

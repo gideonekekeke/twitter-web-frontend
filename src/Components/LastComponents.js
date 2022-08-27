@@ -1,7 +1,37 @@
 import React from "react";
 import styled from "styled-components";
 import { FiMoreVertical } from "react-icons/fi";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { io } from "socket.io-client";
+import { Link } from "react-router-dom";
+
 const LastComponents = () => {
+	const url = "http://localhost:18000";
+	const socket = io("http://localhost:18000");
+	const [data, setData] = React.useState([]);
+	const [dataSingle, setDataSingle] = React.useState([]);
+	const user = useSelector((state) => state.persistedReducer.current);
+	const getUser = async () => {
+		await axios.get(`${url}/api/user`).then((res) => {
+			console.log(res);
+			setData(res.data.data);
+		});
+	};
+	const getSingleUser = async () => {
+		await axios.get(`${url}/api/user/${user._id}`).then((res) => {
+			console.log(res);
+			setDataSingle(res.data.data);
+		});
+	};
+
+	React.useEffect(() => {
+		getUser();
+		getSingleUser();
+		socket.on("observerUser", () => {
+			getUser();
+		});
+	}, []);
 	return (
 		<Container>
 			<SearchHold>
@@ -11,17 +41,49 @@ const LastComponents = () => {
 			<FollowCard>
 				<h3>Who to follow</h3>
 
-				<Holder>
-					<Hol>
-						{" "}
-						<UserImage />
-						<div>
-							<Text>Gideon ekeke</Text>
-							<span>@giddyfire</span>
-						</div>
-					</Hol>
-					<Button>Follow</Button>
-				</Holder>
+				{data.map((props) => (
+					<>
+						{props._id === user?._id ? null : (
+							<Holder>
+								<Hol>
+									{" "}
+									<UserImage src={props.profileImage} />
+									<Link
+										style={{ textDecoration: "none" }}
+										to={`/profile/${props._id}`}>
+										<div>
+											<Text>{props.name}</Text>
+											<span>@{props.username}</span>
+										</div>
+									</Link>
+								</Hol>
+								{dataSingle?.following?.find(
+									(el) => el.userFollow === props?._id,
+								) ? (
+									<Button>Following</Button>
+								) : (
+									<Button
+										onClick={() => {
+											// toggleLoad();
+											axios
+												.post(
+													`http://localhost:18000/api/following/folln/${user._id}`,
+													{
+														userFollow: props._id,
+													},
+												)
+												.then((res) => {
+													console.log(res);
+													window.location.reload();
+												});
+										}}>
+										Follow
+									</Button>
+								)}
+							</Holder>
+						)}
+					</>
+				))}
 			</FollowCard>
 			<br />
 			<FollowCard>
@@ -60,15 +122,17 @@ const Button = styled.div`
 		display: none;
 	}
 `;
-const UserImage = styled.div`
+const UserImage = styled.img`
 	height: 40px;
 	width: 40px;
 	border-radius: 50%;
 	background-color: silver;
+	object-fit: cover;
 `;
 const Text = styled.div`
 	margin-left: 10px;
 	font-weight: bold;
+	color: white;
 `;
 const Holder = styled.div`
 	display: flex;
@@ -85,7 +149,7 @@ const Hol = styled.div`
 	}
 `;
 const FollowCard = styled.div`
-	height: 200px;
+	/* height: 200px; */
 	width: 300px;
 	background-color: #202327;
 	border-radius: 10px;
