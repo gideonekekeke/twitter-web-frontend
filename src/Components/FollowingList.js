@@ -9,13 +9,30 @@ import LoadingState from "./LoadingState";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import UnFollowerPage from "./UnFollowerPage";
+import UserDetails from "./UserDetails";
 
 const FollowingList = ({ toggleFollowing }) => {
+	const user = useSelector((state) => state?.persistedReducer?.current);
 	const [showUn, setShowUn] = React.useState(false);
 
 	const toggleUnfollow = () => {
 		setShowUn(!showUn);
 	};
+
+	const [data, setData] = React.useState([]);
+
+	const getUser = async () => {
+		await axios
+			.get(`http://localhost:18000/api/user/${user._id}`)
+			.then((res) => {
+				console.log("this is rhe user", res);
+				setData(res.data.data);
+			});
+	};
+
+	React.useEffect(() => {
+		getUser();
+	}, []);
 
 	return (
 		<>
@@ -41,22 +58,18 @@ const FollowingList = ({ toggleFollowing }) => {
 							<h4> Following</h4>
 						</div>
 					</Head>
-					<Hold>
-						<div style={{ display: "flex" }}>
-							<ProfileImage />
-							<TextHold to='/profile'>
-								<Text>Name</Text>
-								<span style={{ color: "grey" }}>@giddy</span>
-							</TextHold>
-						</div>
-						<Button
-							onClick={() => {
-								toggleUnfollow();
-								// toggleFollowing();
-							}}>
-							Following
-						</Button>
-					</Hold>
+					{data?.following?.map((props) => (
+						<Hold>
+							<UserDetails id={props.userFollow} />
+							<Button
+								onClick={() => {
+									toggleUnfollow();
+									// toggleFollowing();
+								}}>
+								Following
+							</Button>
+						</Hold>
+					))}
 				</Card>
 			</div>
 		</>
@@ -68,22 +81,6 @@ export default FollowingList;
 const Hold = styled.div`
 	display: flex;
 	justify-content: space-between;
-`;
-const TextHold = styled(Link)`
-	margin-left: 10px;
-	text-decoration: none;
-`;
-const Text = styled.div`
-	color: white;
-`;
-
-const ProfileImage = styled.div`
-	height: 50px;
-	width: 50px;
-	border-radius: 50%;
-	background-color: grey;
-
-	object-fit: cover;
 `;
 
 const Head = styled.div`

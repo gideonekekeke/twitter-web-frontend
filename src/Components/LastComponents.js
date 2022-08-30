@@ -74,6 +74,17 @@ const LastComponents = () => {
 												)
 												.then((res) => {
 													console.log(res);
+													// window.location.reload();
+												});
+											axios
+												.post(
+													`http://localhost:18000/api/follower/fol/${props._id}`,
+													{
+														userFollower: user._id,
+													},
+												)
+												.then((res) => {
+													console.log(res);
 													window.location.reload();
 												});
 										}}>

@@ -9,6 +9,7 @@ import LoadingState from "./LoadingState";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import UnFollowerPage from "./UnFollowerPage";
+import UserDetails from "./UserDetails";
 
 const FollowersList = ({ toggleFollowers }) => {
 	const [showUn, setShowUn] = React.useState(false);
@@ -16,6 +17,23 @@ const FollowersList = ({ toggleFollowers }) => {
 	const toggleUnfollow = () => {
 		setShowUn(!showUn);
 	};
+
+	const user = useSelector((state) => state?.persistedReducer?.current);
+
+	const [data, setData] = React.useState([]);
+
+	const getUser = async () => {
+		await axios
+			.get(`http://localhost:18000/api/user/${user._id}`)
+			.then((res) => {
+				console.log("this followers", res);
+				setData(res.data.data);
+			});
+	};
+
+	React.useEffect(() => {
+		getUser();
+	}, []);
 
 	return (
 		<>
@@ -41,22 +59,18 @@ const FollowersList = ({ toggleFollowers }) => {
 							<h4> Followers</h4>
 						</div>
 					</Head>
-					<Hold>
-						<div style={{ display: "flex" }}>
-							<ProfileImage />
-							<TextHold to='/profile'>
-								<Text>Name</Text>
-								<span style={{ color: "grey" }}>@giddy</span>
-							</TextHold>
-						</div>
-						<Button
-							onClick={() => {
-								toggleUnfollow();
-								// toggleFollowing();
-							}}>
-							Follow Back
-						</Button>
-					</Hold>
+					{data?.follower?.map((props) => (
+						<Hold>
+							<UserDetails id={props.userFollower} />
+							<Button
+								onClick={() => {
+									toggleUnfollow();
+									// toggleFollowing();
+								}}>
+								Follow Back
+							</Button>
+						</Hold>
+					))}
 				</Card>
 			</div>
 		</>

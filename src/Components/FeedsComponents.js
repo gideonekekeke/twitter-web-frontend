@@ -7,8 +7,14 @@ import AllPosts from "./AllPosts";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import Swal from "sweetalert2";
+import LoadingState from "./LoadingState";
 const FeedsComponents = () => {
 	const [data, setData] = React.useState([]);
+
+	const [title, setTitle] = React.useState("");
+	const [tweetImage, setTweetImage] = React.useState("");
+	const [fileUrl, setFileUrl] = React.useState("");
+	const [load, setLoad] = React.useState(false);
 
 	const user = useSelector((state) => state?.persistedReducer?.current);
 
@@ -21,53 +27,191 @@ const FeedsComponents = () => {
 			});
 	};
 
+	const toggleLoad = () => {
+		setLoad(true);
+	};
+
+	const onChangeFile = (e) => {
+		const file = e.target.files[0];
+		const fileRef = URL.createObjectURL(file);
+
+		setTweetImage(file);
+		setFileUrl(fileRef);
+	};
+
+	const postTweet = async () => {
+		if (fileUrl && title) {
+			toggleLoad();
+
+			const formdata = new FormData();
+
+			formdata.append("title", title);
+			formdata.append("tweetImage", tweetImage);
+
+			const config = {
+				headers: {
+					"content-type": "multipart/form-data",
+				},
+			};
+
+			await axios
+				.post(
+					`http://localhost:18000/api/tweet/tweetingimage/${user._id}`,
+					formdata,
+					config,
+				)
+				.then(() => {
+					Swal.fire({
+						icon: "success",
+						title: "Tweet Posted Successfully",
+						showConfirmButton: false,
+					});
+					setLoad(false);
+					window.location.reload();
+				})
+				.catch((err) => {
+					Swal.fire({
+						icon: "error",
+						title: "An error occurred",
+						showConfirmButton: false,
+					});
+					setLoad(false);
+					window.location.reload();
+				});
+		} else if (fileUrl) {
+			toggleLoad();
+
+			const formdata = new FormData();
+
+			formdata.append("title", title);
+			formdata.append("tweetImage", tweetImage);
+
+			const config = {
+				headers: {
+					"content-type": "multipart/form-data",
+				},
+			};
+
+			await axios
+				.post(
+					`http://localhost:18000/api/tweet/tweetingonlyimage/${user._id}`,
+					formdata,
+					config,
+				)
+				.then(() => {
+					Swal.fire({
+						icon: "success",
+						title: "Tweet Posted Successfully",
+						showConfirmButton: false,
+					});
+					setLoad(false);
+					window.location.reload();
+				})
+				.catch((err) => {
+					Swal.fire({
+						icon: "error",
+						title: "An error occurred",
+						showConfirmButton: false,
+					});
+					setLoad(false);
+					window.location.reload();
+				});
+		} else if (title) {
+			toggleLoad();
+			await axios
+				.post(`http://localhost:18000/api/tweet/tweetingtext/${user._id}`, {
+					title,
+				})
+				.then(() => {
+					Swal.fire({
+						icon: "success",
+						title: "Tweet Posted Successfully",
+						showConfirmButton: false,
+					});
+					setLoad(false);
+					window.location.reload();
+				})
+				.catch((err) => {
+					Swal.fire({
+						icon: "error",
+						title: "An error occurred",
+						showConfirmButton: false,
+					});
+					setLoad(false);
+					window.location.reload();
+				});
+		}
+	};
+
 	React.useEffect(() => {
 		getUser();
 	}, []);
 	return (
-		<Container>
-			<FirstComp>
-				<h3>Home</h3>
-				<span>
-					<BsStars />
-				</span>
-			</FirstComp>
+		<>
+			{load ? <LoadingState /> : null}
+			<Container>
+				<FirstComp>
+					<h3>Home</h3>
+					<span>
+						<BsStars />
+					</span>
+				</FirstComp>
 
-			<SecondComp>
-				{user ? <UserImage src={data?.profileImage} /> : <UserImage />}
-				<InputHolder>
-					<input placeholder="What's happening?" />
-					<Hold>
-						<Maining>
-							{" "}
-							<span>
-								<MdInsertPhoto />
-							</span>
-							<span>
-								<BsFillCameraVideoFill />
-							</span>
-							<span>
-								<RiFileGifFill />
-							</span>
-						</Maining>
-						{user ? (
-							<Button>Tweet</Button>
-						) : (
-							<Button
-								onClick={() => {
-									Swal.fire({
-										icon: "error",
-										title: "Cannot tweet, Please create an Account",
-									});
-								}}>
-								Tweet
-							</Button>
-						)}
-					</Hold>
-				</InputHolder>
-			</SecondComp>
-			<AllPosts />
-		</Container>
+				<SecondComp>
+					{user ? <UserImage src={data?.profileImage} /> : <UserImage />}
+					<InputHolder>
+						<input
+							required
+							onChange={(e) => {
+								setTitle(e.target.value);
+							}}
+							placeholder="What's happening?"
+						/>
+						<Hold>
+							<Maining>
+								{" "}
+								<span>
+									<input
+										onChange={onChangeFile}
+										id='pix'
+										style={{ display: "none" }}
+										type='file'
+									/>
+									<label style={{ cursor: "pointer" }} htmlFor='pix'>
+										{" "}
+										<MdInsertPhoto />
+									</label>
+								</span>
+								<span>
+									<label style={{ cursor: "pointer" }} htmlFor='pix'>
+										<BsFillCameraVideoFill />
+									</label>
+								</span>
+								<span>
+									<label style={{ cursor: "pointer" }} htmlFor='pix'>
+										<RiFileGifFill />
+									</label>
+								</span>
+							</Maining>
+							{user ? (
+								<Button onClick={postTweet}>Tweet</Button>
+							) : (
+								<Button
+									onClick={() => {
+										Swal.fire({
+											icon: "error",
+											title: "Cannot tweet, Please create an Account",
+										});
+									}}>
+									Tweet
+								</Button>
+							)}
+						</Hold>
+					</InputHolder>
+				</SecondComp>
+				<AllPosts />
+			</Container>
+		</>
 	);
 };
 
