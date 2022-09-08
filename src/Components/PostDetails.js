@@ -7,85 +7,187 @@ import { BsFillCameraVideoFill, BsStars } from "react-icons/bs";
 import { MdInsertPhoto } from "react-icons/md";
 import { RiFileGifFill } from "react-icons/ri";
 import { FiShare } from "react-icons/fi";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import UserDetails from "./UserDetails";
+import TweetUserDetails from "./TweetsUserDetails";
+import Swal from "sweetalert2";
+import { useSelector } from "react-redux";
+import LoadingState from "./LoadingState";
 const PostDetails = () => {
+	const user = useSelector((state) => state?.persistedReducer?.current);
+	const [data, setData] = React.useState([]);
+	const [com, setCom] = React.useState();
+	const [userData, setUserData] = React.useState([]);
+	const [load, setLoad] = React.useState(false);
+	const { id } = useParams();
+
+	console.log(id);
+
+	const fetchPost = async () => {
+		await axios.get(`http://localhost:18000/api/tweet/${id}`).then((res) => {
+			console.log("this is tweetss", res.data.data);
+			setData(res.data.data);
+		});
+	};
+
+	const toggleLoad = () => {
+		setLoad(true);
+	};
+
+	const postComment = async (event) => {
+		if (!user) {
+			Swal.fire({
+				icon: "error",
+				title: "You do not have permission to comment on this page",
+			});
+		} else {
+			toggleLoad();
+
+			await axios
+				.post(`http://localhost:18000/api/comment/comme/${data._id}`, {
+					title: com,
+					userCommented: user._id,
+				})
+				.then((res) => {
+					console.log(res);
+					setCom(com);
+
+					// event.target.reset();
+					setLoad(false);
+				});
+		}
+	};
+
+	const getUser = async () => {
+		await axios
+			.get(`http://localhost:18000/api/user/${user._id}`)
+			.then((res) => {
+				console.log(res);
+				setUserData(res.data.data);
+			});
+	};
+
+	React.useEffect(() => {
+		fetchPost();
+		getUser();
+	}, [user, data]);
+
 	return (
-		<Container>
-			<UserPostHold>
-				<div style={{ display: "flex" }}>
-					<UserImage1 />
-					<NameHold>
-						<Name>Gideon ekeke</Name>
-						<span style={{ color: "grey" }}>@Giddycode 6h</span>
-					</NameHold>
-				</div>
-				<PostText>Master Python for Free. Thread: 🧵</PostText>
-				<br />
-				<span style={{ color: "grey" }}>4:29 AM · Aug 23, 2022</span>
-				<br />
-				<TweetCount>
-					<MainHold>
-						<span style={{ marginRight: " 20px" }}>
-							1,176 <span style={{ color: "grey" }}>Retweets</span>
-						</span>
-						<span style={{ marginRight: " 20px" }}>
-							23 <span style={{ color: "grey" }}> Quote Tweets</span>
-						</span>
-						<span style={{ marginRight: " 20px" }}>
-							300 <span style={{ color: "grey" }}> Likes</span>
-						</span>
-					</MainHold>
-				</TweetCount>
+		<>
+			{load ? <LoadingState /> : null}
+			<Container>
+				<UserPostHold>
+					<div style={{ display: "flex" }}>
+						<TweetUserDetails ids={data?.user} />
+					</div>
+					<PostText>{data?.title}</PostText>
+					{data?.tweetImage ? <Image src={data?.tweetImage} /> : null}
+					<br />
+					<span style={{ color: "grey" }}>4:29 AM · Aug 23, 2022</span>
+					<br />
+					<TweetCount>
+						<MainHold>
+							<span style={{ marginRight: "20px" }}>
+								{data?.re_tweet?.length}
+								<span style={{ color: "grey" }}>Retweets</span>
+							</span>
+							<span style={{ marginRight: " 20px" }}>
+								{data?.comment?.length}{" "}
+								<span style={{ color: "grey" }}> Comments</span>
+							</span>
+							<span style={{ marginRight: " 20px" }}>
+								{data?.like?.length}{" "}
+								<span style={{ color: "grey" }}> Likes</span>
+							</span>
+						</MainHold>
+					</TweetCount>
 
-				<IconHolder1>
-					<span style={{ display: "flex", alignItems: "center" }}>
-						{" "}
-						<FaRegComment />
-					</span>
-					<span
-						style={{
-							display: "flex",
-							alignItems: "center",
-							color: "green",
-						}}>
-						<FaRetweet />
-					</span>
-					<span
-						style={{
-							display: "flex",
-							alignItems: "center",
-							color: "pink",
-						}}>
-						{" "}
-						<FcLike />
-					</span>
-					<span style={{ display: "flex", alignItems: "center" }}>
-						<FiShare />
-					</span>
-				</IconHolder1>
+					<IconHolder1>
+						<span style={{ display: "flex", alignItems: "center" }}>
+							{" "}
+							<FaRegComment />
+						</span>
+						<span
+							style={{
+								display: "flex",
+								alignItems: "center",
+								color: "green",
+							}}>
+							<FaRetweet />
+						</span>
+						<span
+							style={{
+								display: "flex",
+								alignItems: "center",
+								color: "pink",
+							}}>
+							{" "}
+							<FcLike />
+						</span>
+						<span style={{ display: "flex", alignItems: "center" }}>
+							<FiShare />
+						</span>
+					</IconHolder1>
 
-				<SecondComp>
-					<UserImage />
-					<InputHolder>
-						<input placeholder='Tweet your reply' />
-					</InputHolder>
-					<Button>Reply</Button>
-				</SecondComp>
-				<div style={{ display: "flex", marginTop: "10px" }}>
-					<UserImage1 />
-					<NameHold>
-						<Name>
-							Gideon ekeke <span style={{ color: "grey" }}>@Giddycode 6h</span>
-						</Name>
-
-						<PostText>Master Python for Free. Thread: 🧵</PostText>
-					</NameHold>
-				</div>
-			</UserPostHold>
-		</Container>
+					<SecondComp>
+						<UserImage src={userData?.profileImage} />
+						<InputHolder>
+							<input
+								onChange={(e) => {
+									setCom(e.target.value);
+								}}
+								placeholder='Tweet your reply'
+							/>
+						</InputHolder>
+						{com == "" ? (
+							<Button
+								onClick={() => {
+									Swal.fire({
+										icon: "error",
+										title: "Field is required",
+									});
+								}}>
+								Reply
+							</Button>
+						) : (
+							<Button
+								onClick={() => {
+									postComment();
+									setCom(com);
+								}}>
+								Reply
+							</Button>
+						)}
+					</SecondComp>
+					{data?.comment?.map((props) => (
+						<div style={{ display: "flex", marginTop: "10px" }}>
+							<NameHold>
+								<UserDetails id={props?.userCommented} />
+								<PostText>{props.title}</PostText>
+							</NameHold>
+						</div>
+					))}
+				</UserPostHold>
+			</Container>
+		</>
 	);
 };
 
 export default PostDetails;
+
+const Image = styled.img`
+	height: 300px;
+	background-color: gray;
+	width: 100%;
+	margin-top: 20px;
+	border-radius: 10px;
+	object-fit: cover;
+
+	@media screen and (max-width: 768px) {
+		width: 150px;
+	}
+`;
 
 const Button = styled.div`
 	margin: 10px;
@@ -155,6 +257,8 @@ const SecondComp = styled.div`
 	/* align-items: center; */
 	margin-top: 20px;
 	border-bottom: 1px solid #202327;
+
+	/* background-color: red; */
 `;
 
 const IconHolder1 = styled.div`
@@ -183,11 +287,12 @@ const UserPostHold = styled.div`
 	padding: 20px;
 	flex-direction: column;
 `;
-const UserImage = styled.div`
+const UserImage = styled.img`
 	height: 50px;
 	width: 50px;
 	border-radius: 50%;
 	background-color: silver;
+	object-fit: cover;
 `;
 const NameHold = styled.div`
 	margin-left: 10px;
@@ -198,6 +303,7 @@ const Name = styled.div`
 const PostText = styled.div`
 	margin-top: 10px;
 	font-size: 20px;
+	margin-left: 55px;
 `;
 
 const Container = styled.div`

@@ -23,7 +23,7 @@ function App() {
 					<Route path='/messages' element={<Messages />} />
 					<Route path='/bookmark' element={<BookMarks />} />
 					<Route path='/profile/:id' element={<ProfilePage />} />
-					<Route path='/details:id' element={<PostDetails />} />
+					<Route path='/details/:id' element={<PostDetails />} />
 				</Routes>
 				<LastComponents />
 			</Router>

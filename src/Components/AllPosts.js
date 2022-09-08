@@ -17,6 +17,10 @@ const AllPosts = () => {
 		});
 	};
 
+	const mystr = "this is my new search #Search";
+
+	console.log("this is the new search", mystr.includes("#"));
+
 	React.useEffect(() => {
 		getAllTweets();
 	}, []);
@@ -24,7 +28,7 @@ const AllPosts = () => {
 		<Container>
 			{data?.map((props) => (
 				<Card>
-					<Holder to='/details'>
+					<Holder to={`/details/${props._id}`}>
 						<UserDetails id={props?.user} />
 
 						<TextHold>
@@ -34,7 +38,8 @@ const AllPosts = () => {
 							<IconHolder>
 								<span style={{ display: "flex", alignItems: "center" }}>
 									{" "}
-									<FaRegComment /> 10
+									<FaRegComment style={{ marginRight: "10px" }} />{" "}
+									{props?.comment?.length}
 								</span>
 								<span
 									style={{
@@ -42,8 +47,8 @@ const AllPosts = () => {
 										alignItems: "center",
 										color: "green",
 									}}>
-									<FaRetweet />
-									20
+									<FaRetweet style={{ marginRight: "10px" }} />
+									{props?.re_tweet?.length}
 								</span>
 								<span
 									style={{
@@ -52,10 +57,12 @@ const AllPosts = () => {
 										color: "pink",
 									}}>
 									{" "}
-									<FcLike /> 15
+									<FcLike style={{ marginRight: "10px" }} />{" "}
+									{props?.like?.length}
 								</span>
 								<span style={{ display: "flex", alignItems: "center" }}>
-									<FiShare /> 5
+									<FiShare style={{ marginRight: "10px" }} />{" "}
+									{props?.share?.length}
 								</span>
 							</IconHolder>
 						</TextHold>

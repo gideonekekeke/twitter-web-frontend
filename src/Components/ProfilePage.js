@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { BiArrowBack } from "react-icons/bi";
-import pic from "./img/1.jpg";
+
 import pic1 from "./img/3.jpg";
 import { FaRegComment, FaRetweet } from "react-icons/fa";
 import { FcLike } from "react-icons/fc";
@@ -12,6 +12,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import FollowingList from "./FollowingList";
 import FollowersList from "./FollowersList";
+
 const ProfilePage = () => {
 	const [tweets, setTweets] = React.useState(false);
 	const [replies, setReplies] = React.useState(false);
@@ -138,44 +139,48 @@ const ProfilePage = () => {
 				</TweetTable>
 				<br />
 				{tweets ? (
-					<Card>
-						<Holder>
-							<UserImage />
-							<TextHold>
-								<UserName>Name</UserName>
-								<Desc>dommy text</Desc>
+					<>
+						{data?.your_tweet?.map((props) => (
+							<Card>
+								<Holder>
+									<UserImage />
+									<TextHold>
+										<UserName>Name</UserName>
+										<Desc>dommy text</Desc>
 
-								<Image />
-								<IconHolder>
-									<span style={{ display: "flex", alignItems: "center" }}>
-										{" "}
-										<FaRegComment /> 10
-									</span>
-									<span
-										style={{
-											display: "flex",
-											alignItems: "center",
-											color: "green",
-										}}>
-										<FaRetweet />
-										20
-									</span>
-									<span
-										style={{
-											display: "flex",
-											alignItems: "center",
-											color: "pink",
-										}}>
-										{" "}
-										<FcLike /> 15
-									</span>
-									<span style={{ display: "flex", alignItems: "center" }}>
-										<FiShare /> 5
-									</span>
-								</IconHolder>
-							</TextHold>
-						</Holder>
-					</Card>
+										<Image />
+										<IconHolder>
+											<span style={{ display: "flex", alignItems: "center" }}>
+												{" "}
+												<FaRegComment /> 10
+											</span>
+											<span
+												style={{
+													display: "flex",
+													alignItems: "center",
+													color: "green",
+												}}>
+												<FaRetweet />
+												20
+											</span>
+											<span
+												style={{
+													display: "flex",
+													alignItems: "center",
+													color: "pink",
+												}}>
+												{" "}
+												<FcLike /> 15
+											</span>
+											<span style={{ display: "flex", alignItems: "center" }}>
+												<FiShare /> 5
+											</span>
+										</IconHolder>
+									</TextHold>
+								</Holder>
+							</Card>
+						))}
+					</>
 				) : (
 					<>
 						{replies ? (

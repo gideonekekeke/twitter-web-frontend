@@ -3,11 +3,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-const UserDetails = ({ id, ima, ids }) => {
+const TweetUserDetails = ({ ids }) => {
 	const [data, setData] = React.useState([]);
 
 	const getUser = async () => {
-		await axios.get(`http://localhost:18000/api/user/${id}`).then((res) => {
+		await axios.get(`http://localhost:18000/api/user/${ids}`).then((res) => {
 			console.log("this is rhe user", res);
 			setData(res.data.data);
 		});
@@ -15,7 +15,7 @@ const UserDetails = ({ id, ima, ids }) => {
 
 	React.useEffect(() => {
 		getUser();
-	}, [data]);
+	}, [data, ids]);
 	return (
 		<>
 			<div style={{ display: "flex" }}>
@@ -29,7 +29,7 @@ const UserDetails = ({ id, ima, ids }) => {
 	);
 };
 
-export default UserDetails;
+export default TweetUserDetails;
 const TextHold = styled(Link)`
 	margin-left: 10px;
 	text-decoration: none;
