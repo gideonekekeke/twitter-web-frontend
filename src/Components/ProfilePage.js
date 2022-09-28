@@ -12,6 +12,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import FollowingList from "./FollowingList";
 import FollowersList from "./FollowersList";
+import UserDetails from "./UserDetails";
 
 const ProfilePage = () => {
 	const [tweets, setTweets] = React.useState(false);
@@ -46,7 +47,7 @@ const ProfilePage = () => {
 
 	const getUser = async () => {
 		await axios.get(`http://localhost:18000/api/user/${id}`).then((res) => {
-			console.log(res);
+			// console.log(res);
 			setData(res.data.data);
 		});
 	};
@@ -82,7 +83,7 @@ const ProfilePage = () => {
 
 	React.useEffect(() => {
 		getUser();
-	}, [id]);
+	}, []);
 	return (
 		<>
 			{prof ? <EditProfilePage toggleProf={toggleProf} /> : null}
@@ -142,17 +143,18 @@ const ProfilePage = () => {
 					<>
 						{data?.your_tweet?.map((props) => (
 							<Card>
-								<Holder>
-									<UserImage />
-									<TextHold>
-										<UserName>Name</UserName>
-										<Desc>dommy text</Desc>
+								<Holder to={`/details/${props._id}`}>
+									<UserDetails id={props?.user} />
 
-										<Image />
+									<TextHold>
+										<Desc>{props.title}</Desc>
+
+										{props.tweetImage ? <Image src={props.tweetImage} /> : null}
 										<IconHolder>
 											<span style={{ display: "flex", alignItems: "center" }}>
 												{" "}
-												<FaRegComment /> 10
+												<FaRegComment style={{ marginRight: "10px" }} />{" "}
+												{props?.comment?.length}
 											</span>
 											<span
 												style={{
@@ -160,8 +162,8 @@ const ProfilePage = () => {
 													alignItems: "center",
 													color: "green",
 												}}>
-												<FaRetweet />
-												20
+												<FaRetweet style={{ marginRight: "10px" }} />
+												{props?.re_tweet?.length}
 											</span>
 											<span
 												style={{
@@ -170,10 +172,12 @@ const ProfilePage = () => {
 													color: "pink",
 												}}>
 												{" "}
-												<FcLike /> 15
+												<FcLike style={{ marginRight: "10px" }} />{" "}
+												{props?.like?.length}
 											</span>
 											<span style={{ display: "flex", alignItems: "center" }}>
-												<FiShare /> 5
+												<FiShare style={{ marginRight: "10px" }} />{" "}
+												{props?.share?.length}
 											</span>
 										</IconHolder>
 									</TextHold>
@@ -402,7 +406,7 @@ const TextHold = styled.div`
 `;
 
 const Holder = styled.div`
-	display: flex;
+	// display: flex;
 
 	margin: 20px;
 	width: 100%;

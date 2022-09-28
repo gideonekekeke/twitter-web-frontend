@@ -33,7 +33,7 @@ const FollowersList = ({ toggleFollowers }) => {
 
 	React.useEffect(() => {
 		getUser();
-	}, []);
+	}, [data]);
 
 	return (
 		<>

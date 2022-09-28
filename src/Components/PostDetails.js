@@ -14,6 +14,7 @@ import TweetUserDetails from "./TweetsUserDetails";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import LoadingState from "./LoadingState";
+import LikeComp from "./LikeComp";
 const PostDetails = () => {
 	const user = useSelector((state) => state?.persistedReducer?.current);
 	const [data, setData] = React.useState([]);
@@ -52,6 +53,7 @@ const PostDetails = () => {
 				.then((res) => {
 					console.log(res);
 					setCom(com);
+					window.location.reload();
 
 					// event.target.reset();
 					setLoad(false);
@@ -68,6 +70,10 @@ const PostDetails = () => {
 			});
 	};
 
+	// React.useEffect(() => {
+	// 	fetchPost();
+	// 	getUser();
+	// }, []);
 	React.useEffect(() => {
 		fetchPost();
 		getUser();
@@ -104,29 +110,32 @@ const PostDetails = () => {
 					</TweetCount>
 
 					<IconHolder1>
-						<span style={{ display: "flex", alignItems: "center" }}>
+						<span
+							style={{
+								display: "flex",
+								alignItems: "center",
+								cursor: "pointer",
+							}}>
 							{" "}
-							<FaRegComment />
+							<FaRegComment style={{ cursor: "pointer" }} />
 						</span>
 						<span
 							style={{
 								display: "flex",
 								alignItems: "center",
 								color: "green",
+								cursor: "pointer",
 							}}>
-							<FaRetweet />
+							<FaRetweet style={{ cursor: "pointer" }} />
 						</span>
+						<LikeComp data={data} id={id} />
 						<span
 							style={{
 								display: "flex",
 								alignItems: "center",
-								color: "pink",
+								cursor: "pointer",
 							}}>
-							{" "}
-							<FcLike />
-						</span>
-						<span style={{ display: "flex", alignItems: "center" }}>
-							<FiShare />
+							<FiShare style={{ cursor: "pointer" }} />
 						</span>
 					</IconHolder1>
 

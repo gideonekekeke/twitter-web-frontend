@@ -1,18 +1,20 @@
 import React from "react";
 import { FaRegComment, FaRetweet } from "react-icons/fa";
-
-import { FcLike } from "react-icons/fc";
 import styled from "styled-components";
 import { FiShare } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import UserDetails from "./UserDetails";
+import LikeComp from "./LikeComp";
+import { io } from "socket.io-client";
 const AllPosts = () => {
 	const [data, setData] = React.useState([]);
+	const url = "http://localhost:18000";
+	const socket = io("http://localhost:18000");
 
 	const getAllTweets = async () => {
-		await axios.get(`http://localhost:18000/api/tweet`).then((res) => {
-			console.log(res);
+		await axios.get(`${url}/api/tweet`).then((res) => {
+			// console.log(res);
 			setData(res.data.data);
 		});
 	};
@@ -23,6 +25,9 @@ const AllPosts = () => {
 
 	React.useEffect(() => {
 		getAllTweets();
+		socket.on("observerTweet", () => {
+			getAllTweets();
+		});
 	}, []);
 	return (
 		<Container>
@@ -30,10 +35,8 @@ const AllPosts = () => {
 				<Card>
 					<Holder to={`/details/${props._id}`}>
 						<UserDetails id={props?.user} />
-
 						<TextHold>
 							<Desc>{props.title}</Desc>
-
 							{props.tweetImage ? <Image src={props.tweetImage} /> : null}
 							<IconHolder>
 								<span style={{ display: "flex", alignItems: "center" }}>
@@ -54,11 +57,12 @@ const AllPosts = () => {
 									style={{
 										display: "flex",
 										alignItems: "center",
-										color: "pink",
 									}}>
 									{" "}
-									<FcLike style={{ marginRight: "10px" }} />{" "}
-									{props?.like?.length}
+									<LikeComp data={props} id={props._id} />{" "}
+									<span style={{ marginLeft: "10px" }}>
+										{props?.like?.length}
+									</span>
 								</span>
 								<span style={{ display: "flex", alignItems: "center" }}>
 									<FiShare style={{ marginRight: "10px" }} />{" "}

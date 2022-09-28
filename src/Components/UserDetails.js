@@ -13,9 +13,12 @@ const UserDetails = ({ id, ima, ids }) => {
 		});
 	};
 
+	// React.useEffect(() => {
+	// 	getUser();
+	// }, [data]);
 	React.useEffect(() => {
 		getUser();
-	}, [data]);
+	}, []);
 	return (
 		<>
 			<div style={{ display: "flex" }}>

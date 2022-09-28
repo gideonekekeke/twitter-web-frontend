@@ -20,7 +20,7 @@ const LastComponents = () => {
 	};
 	const getSingleUser = async () => {
 		await axios.get(`${url}/api/user/${user._id}`).then((res) => {
-			console.log(res);
+			// console.log(res);
 			setDataSingle(res.data.data);
 		});
 	};

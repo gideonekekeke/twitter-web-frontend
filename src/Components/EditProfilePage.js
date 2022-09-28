@@ -24,7 +24,7 @@ const EditProfilePage = ({ toggleProf }) => {
 		await axios
 			.get(`http://localhost:18000/api/user/${user._id}`)
 			.then((res) => {
-				console.log(res);
+				// console.log(res);
 				setData(res.data.data);
 			});
 	};
@@ -84,7 +84,7 @@ const EditProfilePage = ({ toggleProf }) => {
 				config,
 			)
 			.then((res) => {
-				console.log(res.data.data);
+				// console.log(res.data.data);
 
 				Swal.fire({
 					position: "center",

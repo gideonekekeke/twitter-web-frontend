@@ -22,7 +22,7 @@ const FeedsComponents = () => {
 		await axios
 			.get(`http://localhost:18000/api/user/${user._id}`)
 			.then((res) => {
-				console.log(res);
+				// console.log(res);
 				setData(res.data.data);
 			});
 	};

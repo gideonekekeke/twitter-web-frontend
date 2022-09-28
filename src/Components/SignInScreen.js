@@ -36,7 +36,7 @@ const SignInScreen = ({ toggleShow2 }) => {
 		await axios
 			.post("http://localhost:18000/api/user/login", val)
 			.then((res) => {
-				console.log(res);
+				// console.log(res);
 				Swal.fire({
 					icon: "success",
 					title: "Welcome Back",

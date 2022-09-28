@@ -8,7 +8,7 @@ const TweetUserDetails = ({ ids }) => {
 
 	const getUser = async () => {
 		await axios.get(`http://localhost:18000/api/user/${ids}`).then((res) => {
-			console.log("this is rhe user", res);
+			// console.log("this is rhe user", res);
 			setData(res.data.data);
 		});
 	};

@@ -25,7 +25,7 @@ const FollowingList = ({ toggleFollowing }) => {
 		await axios
 			.get(`http://localhost:18000/api/user/${user._id}`)
 			.then((res) => {
-				console.log("this is rhe user", res);
+				// console.log("this is rhe user", res);
 				setData(res.data.data);
 			});
 	};
